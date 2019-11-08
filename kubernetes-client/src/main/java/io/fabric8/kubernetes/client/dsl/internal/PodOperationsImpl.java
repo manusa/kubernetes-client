@@ -31,9 +31,6 @@ import java.nio.file.Path;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import io.fabric8.kubernetes.client.dsl.CopyOrReadable;
-import io.fabric8.kubernetes.client.utils.Utils;
-
 import io.fabric8.kubernetes.api.model.DoneablePod;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
@@ -42,19 +39,20 @@ import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.LocalPortForward;
 import io.fabric8.kubernetes.client.PortForward;
-import io.fabric8.kubernetes.client.dsl.PodResource;
+import io.fabric8.kubernetes.client.dsl.BytesLimitTerminateTimeTailPrettyLoggable;
 import io.fabric8.kubernetes.client.dsl.ContainerResource;
+import io.fabric8.kubernetes.client.dsl.CopyOrReadable;
 import io.fabric8.kubernetes.client.dsl.ExecListenable;
 import io.fabric8.kubernetes.client.dsl.ExecListener;
 import io.fabric8.kubernetes.client.dsl.ExecWatch;
 import io.fabric8.kubernetes.client.dsl.Execable;
 import io.fabric8.kubernetes.client.dsl.LogWatch;
 import io.fabric8.kubernetes.client.dsl.Loggable;
+import io.fabric8.kubernetes.client.dsl.PodResource;
 import io.fabric8.kubernetes.client.dsl.PrettyLoggable;
 import io.fabric8.kubernetes.client.dsl.TailPrettyLoggable;
 import io.fabric8.kubernetes.client.dsl.TimeTailPrettyLoggable;
 import io.fabric8.kubernetes.client.dsl.TtyExecErrorChannelable;
-import io.fabric8.kubernetes.client.dsl.BytesLimitTerminateTimeTailPrettyLoggable;
 import io.fabric8.kubernetes.client.dsl.TtyExecErrorable;
 import io.fabric8.kubernetes.client.dsl.TtyExecOutputErrorable;
 import io.fabric8.kubernetes.client.dsl.TtyExecable;
@@ -62,9 +60,15 @@ import io.fabric8.kubernetes.client.dsl.base.HasMetadataOperation;
 import io.fabric8.kubernetes.client.dsl.base.OperationContext;
 import io.fabric8.kubernetes.client.utils.BlockingInputStreamPumper;
 import io.fabric8.kubernetes.client.utils.URLUtils;
-import okhttp3.*;
+import io.fabric8.kubernetes.client.utils.Utils;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
-public class PodOperationsImpl extends HasMetadataOperation<Pod, PodList, DoneablePod, PodResource<Pod, DoneablePod>> implements PodResource<Pod, DoneablePod>,CopyOrReadable<Boolean,InputStream> {
+import static io.fabric8.kubernetes.client.utils.OptionalDependencyWrapper.wrapRunWithOptionalDependency;
+
+public class PodOperationsImpl extends HasMetadataOperation<Pod, PodList, DoneablePod, PodResource<Pod, DoneablePod>> implements PodResource<Pod, DoneablePod>,CopyOrReadable<Boolean,InputStream, Boolean> {
 
     private static final String[] EMPTY_COMMAND = {"/bin/sh", "-i"};
 
@@ -183,7 +187,7 @@ public class PodOperationsImpl extends HasMetadataOperation<Pod, PodList, Doneab
 
   /**
    * Returns an unclosed Reader. It's the caller responsibility to close it.
-   * @return Reader                                                                                                                                                             
+   * @return Reader
    */
   @Override
   public Reader getLogReader() {
@@ -243,7 +247,7 @@ public class PodOperationsImpl extends HasMetadataOperation<Pod, PodList, Doneab
   }
 
   @Override
-    public ContainerResource<String, LogWatch, InputStream, PipedOutputStream, OutputStream, PipedInputStream, String, ExecWatch, Boolean, InputStream> inContainer(String containerId) {
+    public ContainerResource<String, LogWatch, InputStream, PipedOutputStream, OutputStream, PipedInputStream, String, ExecWatch, Boolean, InputStream, Boolean> inContainer(String containerId) {
         return new PodOperationsImpl(getContext().withContainerId(containerId));
     }
 
@@ -261,7 +265,7 @@ public class PodOperationsImpl extends HasMetadataOperation<Pod, PodList, Doneab
             } else {
                 sb.append("&command=");
             }
-          
+
             try {
             	cmd = URLUtils.encodeToUTF(cmd);
             } catch (UnsupportedEncodingException encodEx) {
@@ -303,12 +307,12 @@ public class PodOperationsImpl extends HasMetadataOperation<Pod, PodList, Doneab
 
 
     @Override
-    public CopyOrReadable<Boolean, InputStream> file(String file) {
+    public CopyOrReadable<Boolean, InputStream, Boolean> file(String file) {
       return new PodOperationsImpl(getContext().withFile(file));
     }
 
     @Override
-    public CopyOrReadable<Boolean, InputStream> dir(String dir) {
+    public CopyOrReadable<Boolean, InputStream, Boolean> dir(String dir) {
       return new PodOperationsImpl(getContext().withDir(dir));
     }
 
@@ -327,6 +331,11 @@ public class PodOperationsImpl extends HasMetadataOperation<Pod, PodList, Doneab
       throw KubernetesClientException.launderThrowable(e);
     }
    }
+
+  @Override
+  public Boolean upload(Path path) {
+    throw new UnsupportedOperationException("WIP TODO: IMPLEMENT");
+  }
 
   @Override
   public InputStream read() {
@@ -390,44 +399,36 @@ public class PodOperationsImpl extends HasMetadataOperation<Pod, PodList, Doneab
   //
 
   private void copyFile(String source, File target)  {
-    //Let's wrap the code to a runnable inner class to avoid NoClassDef on Option classes.
-    try {
-    new Runnable() {
-      @Override
-      public void run() {
-        File destination = target;
-        if (!destination.exists() && !destination.getParentFile().exists() && !destination.getParentFile().mkdirs()) {
-            throw KubernetesClientException.launderThrowable(new IOException("Failed to create directory: " + destination.getParentFile()));
-        }
-        if (destination.isDirectory()) {
-            String[] parts = source.split("\\/|\\\\");
-            String filename = parts[parts.length - 1];
-            destination = destination.toPath().resolve(filename).toFile();
-        }
-        try (InputStream is = readFile(source);
-             OutputStream os = new FileOutputStream(destination)) {
-          BlockingInputStreamPumper pumper = new BlockingInputStreamPumper(is, input -> {
-            try {
-              os.write(input);
-            } catch (IOException e) {
-              throw KubernetesClientException.launderThrowable(e);
-            }
-          }, () -> {
-            try {
-              os.flush();
-            } catch (Exception e) {
-              throw KubernetesClientException.launderThrowable(e);
-            }
-          });
-          pumper.run();
-        } catch (Exception e) {
-          throw KubernetesClientException.launderThrowable(e);
-        }
+    wrapRunWithOptionalDependency(() -> {
+      File destination = target;
+      if (!destination.exists() && !destination.getParentFile().exists() && !destination.getParentFile().mkdirs()) {
+        throw KubernetesClientException.launderThrowable(new IOException("Failed to create directory: " + destination.getParentFile()));
       }
-    }.run();
-    } catch (NoClassDefFoundError e) {
-      throw new KubernetesClientException("Base64InputStream class is provided by commons-codec, an optional dependency. To use the read/copy functionality you must explicitly add this dependency to the classpath.");
-    }
+      if (destination.isDirectory()) {
+        String[] parts = source.split("\\/|\\\\");
+        String filename = parts[parts.length - 1];
+        destination = destination.toPath().resolve(filename).toFile();
+      }
+      try (InputStream is = readFile(source);
+        OutputStream os = new FileOutputStream(destination)) {
+        BlockingInputStreamPumper pumper = new BlockingInputStreamPumper(is, input -> {
+          try {
+            os.write(input);
+          } catch (IOException e) {
+            throw KubernetesClientException.launderThrowable(e);
+          }
+        }, () -> {
+          try {
+            os.flush();
+          } catch (Exception e) {
+            throw KubernetesClientException.launderThrowable(e);
+          }
+        });
+        pumper.run();
+      } catch (Exception e) {
+        throw KubernetesClientException.launderThrowable(e);
+      }
+    }, "Base64InputStream class is provided by commons-codec");
   }
 
   public InputStream readTar(String source) throws Exception {
