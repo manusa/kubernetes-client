@@ -15,22 +15,6 @@
  */
 package io.fabric8.kubernetes.client.dsl.internal;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
-import java.nio.file.Path;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
-
 import io.fabric8.kubernetes.api.model.DoneablePod;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodList;
@@ -65,6 +49,24 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.apache.commons.codec.binary.Base64OutputStream;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 import static io.fabric8.kubernetes.client.utils.OptionalDependencyWrapper.wrapRunWithOptionalDependency;
 
@@ -334,7 +336,31 @@ public class PodOperationsImpl extends HasMetadataOperation<Pod, PodList, Doneab
 
   @Override
   public Boolean upload(Path path) {
-    throw new UnsupportedOperationException("WIP TODO: IMPLEMENT");
+    final int defaultUploadBufferSize = 131072;
+    return this.upload(path, defaultUploadBufferSize);
+  }
+
+  @Override
+  public Boolean upload(Path path, int uploadBufferSize) {
+    if (Utils.isNotNullOrEmpty(getContext().getFile())) {
+      try {
+        final ExecWatch ew = redirectingInput(uploadBufferSize)
+          .exec("sh", "-c", String.format("base64 -d - > %s", getContext().getFile()));
+        try (
+          final Base64OutputStream b64Os = new Base64OutputStream(ew.getInput(), true, 0,
+            new byte[]{'\r', '\n'});
+        ) {
+          Files.copy(path, b64Os);
+          b64Os.flush();
+        }
+        return true;
+      } catch (IOException ex) {
+        throw KubernetesClientException.launderThrowable(ex);
+      }
+    } else if (Utils.isNotNullOrEmpty(getContext().getDir())) {
+      throw new UnsupportedOperationException("WIP TODO: IMPLEMENT");
+    }
+    return false;
   }
 
   @Override
@@ -475,36 +501,33 @@ public class PodOperationsImpl extends HasMetadataOperation<Pod, PodList, Doneab
   }
 
   private void copyDir(String source, File target) throws Exception {
-    //Let's wrap the code to a runnable inner class to avoid NoClassDef on Option classes.
-    try {
-    new Runnable() {
-      public void  run() {
-        File destination = target;
-        if (!destination.isDirectory() && !destination.mkdirs())
-
-        {
-          throw KubernetesClientException.launderThrowable(new IOException("Failed to create directory: " + destination));
-        }
-        try (
-          InputStream is = readTar(source);
-          org.apache.commons.compress.archivers.tar.TarArchiveInputStream tis = new org.apache.commons.compress.archivers.tar.TarArchiveInputStream(is))
-
-        {
-          for (org.apache.commons.compress.archivers.ArchiveEntry entry = tis.getNextTarEntry(); entry != null; entry = tis.getNextEntry()) {
-            if (tis.canReadEntryData(entry)) {
-              File f = new File(destination, entry.getName());
-              if (entry.isDirectory()) {
-                if (!f.isDirectory() && !f.mkdirs()) {
-                  throw new IOException("Failed to create directory: " + f);
-                }
-              } else {
-                File parent = f.getParentFile();
-                if (!parent.isDirectory() && !parent.mkdirs()) {
-                  throw new IOException("Failed to create directory: " + f);
-                }
-                try (OutputStream fs = new FileOutputStream(f)) {
-                  System.out.println("Writing: " + f.getCanonicalPath());
-                  BlockingInputStreamPumper pumper = new BlockingInputStreamPumper(tis, new Callback<byte[]>() {
+    wrapRunWithOptionalDependency(() -> {
+      File destination = target;
+      if (!destination.isDirectory() && !destination.mkdirs()) {
+        throw KubernetesClientException
+          .launderThrowable(new IOException("Failed to create directory: " + destination));
+      }
+      try (
+        InputStream is = readTar(source);
+        org.apache.commons.compress.archivers.tar.TarArchiveInputStream tis = new org.apache.commons.compress.archivers.tar.TarArchiveInputStream(
+          is)) {
+        for (org.apache.commons.compress.archivers.ArchiveEntry entry = tis.getNextTarEntry();
+          entry != null; entry = tis.getNextEntry()) {
+          if (tis.canReadEntryData(entry)) {
+            File f = new File(destination, entry.getName());
+            if (entry.isDirectory()) {
+              if (!f.isDirectory() && !f.mkdirs()) {
+                throw new IOException("Failed to create directory: " + f);
+              }
+            } else {
+              File parent = f.getParentFile();
+              if (!parent.isDirectory() && !parent.mkdirs()) {
+                throw new IOException("Failed to create directory: " + f);
+              }
+              try (OutputStream fs = new FileOutputStream(f)) {
+                System.out.println("Writing: " + f.getCanonicalPath());
+                BlockingInputStreamPumper pumper = new BlockingInputStreamPumper(tis,
+                  new Callback<byte[]>() {
                     @Override
                     public void call(byte[] input) {
                       try {
@@ -514,25 +537,21 @@ public class PodOperationsImpl extends HasMetadataOperation<Pod, PodList, Doneab
                       }
                     }
                   }, () -> {
-                    try {
-                      fs.close();
-                    } catch (IOException e) {
-                      throw KubernetesClientException.launderThrowable(e);
-                    }
-                  });
-                  pumper.run();
-                }
+                  try {
+                    fs.close();
+                  } catch (IOException e) {
+                    throw KubernetesClientException.launderThrowable(e);
+                  }
+                });
+                pumper.run();
               }
             }
           }
-        } catch (Exception e) {
-          throw KubernetesClientException.launderThrowable(e);
         }
+      } catch (Exception e) {
+        throw KubernetesClientException.launderThrowable(e);
       }
-    }.run();
-     } catch (NoClassDefFoundError e) {
-      throw new KubernetesClientException("TarArchiveInputStream class is provided by commons-codec, an optional dependency. To use the read/copy functionality you must explicitly add this dependency to the classpath.");
-    }
+    }, "TarArchiveInputStream class is provided by commons-codec");
   }
 
   @Override

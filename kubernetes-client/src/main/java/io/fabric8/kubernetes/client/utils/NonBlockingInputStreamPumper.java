@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Optional;
 
 //USE: when pumping streams, which do not react great to interruption (e.g. System.in).
 //DONT USE: When using stream that don't support great in.available() (e.g. okio.RealBufferSource.inputStream()).
@@ -29,12 +30,21 @@ public class NonBlockingInputStreamPumper extends InputStreamPumper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InputStreamReader.class);
 
+    private static final int DEFAULT_BUFFER_SIZE = 1024;
+
+    private final int bufferSize;
+
     public NonBlockingInputStreamPumper(InputStream in, Callback<byte[]> callback) {
       this(in, callback, null);
     }
 
     public NonBlockingInputStreamPumper(InputStream in, Callback<byte[]> callback, Runnable onClose) {
+      this(in, callback, onClose, null);
+    }
+
+    public NonBlockingInputStreamPumper(InputStream in, Callback<byte[]> callback, Runnable onClose, Integer bufferSize) {
       super(in, callback, onClose);
+      this.bufferSize = Optional.ofNullable(bufferSize).orElse(DEFAULT_BUFFER_SIZE);
     }
 
     @Override
@@ -42,7 +52,7 @@ public class NonBlockingInputStreamPumper extends InputStreamPumper {
         synchronized (this) {
           thread = Thread.currentThread();
         }
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[bufferSize];
         try {
             while (keepReading && !Thread.currentThread().isInterrupted()) {
               while (in.available() > 0 && keepReading && !Thread.currentThread().isInterrupted()) {

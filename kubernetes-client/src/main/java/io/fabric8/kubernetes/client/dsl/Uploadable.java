@@ -20,4 +20,6 @@ import java.nio.file.Path;
 public interface Uploadable<T> {
 
   T upload(Path path);
+
+  T upload(Path path, int uploadBufferSize);
 }
