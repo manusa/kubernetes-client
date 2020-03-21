@@ -35,4 +35,4 @@ jobs:
         with:
           java-version: '11'
       - name: Maven Sonar
-        run: mvn clean install sonar:sonar -Psonar
+        run: mvn clean install sonar:sonar -Psonar -X
