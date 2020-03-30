@@ -54,6 +54,6 @@ public class CustomResourceTest1109 {
     assertEquals(1, list.getItems().size());
     assertEquals("FooBar", list.getItems().iterator().next().getKind());
     final FooBar fooBar = fooBarClient.inNamespace("default").withName("example").get();
-    assertNull(fooBar); //TODO -> Should be not null -> assertNotNull
+    assertNotNull(fooBar);
   }
 }

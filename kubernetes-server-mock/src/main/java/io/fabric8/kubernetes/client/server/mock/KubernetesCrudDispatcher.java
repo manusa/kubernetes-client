@@ -35,7 +35,7 @@ public class KubernetesCrudDispatcher extends CrudDispatcher {
   private static final Logger LOGGER = LoggerFactory.getLogger(KubernetesCrudDispatcher.class);
 
   public KubernetesCrudDispatcher() {
-    this(new KubernetesAttributesExtractor(), new KubernetesResponseComposer());
+    this(new KubernetesCrudAttributesExtractor(), new KubernetesResponseComposer());
   }
 
   public KubernetesCrudDispatcher(AttributeExtractor attributeExtractor, ResponseComposer responseComposer) {
@@ -55,7 +55,7 @@ public class KubernetesCrudDispatcher extends CrudDispatcher {
     AttributeSet query = attributeExtractor.extract(path);
 
     for (Map.Entry<AttributeSet, String> entry : map.entrySet()) {
-      if (entry.getKey().matches(query)) {
+      if (query.matches(entry.getKey()) || entry.getKey().matches(query)) {
         LOGGER.debug("Entry found for query {} : {}", query, entry);
         items.add(entry.getValue());
       }

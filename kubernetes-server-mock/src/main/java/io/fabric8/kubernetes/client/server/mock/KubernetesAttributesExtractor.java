@@ -57,7 +57,7 @@ public class KubernetesAttributesExtractor implements AttributeExtractor<HasMeta
 
   protected static final Pattern PATTERN = Pattern.compile(API_GROUP + VERSION_GROUP + NAMESPACE_GROUP + KIND_GROUP + NAME_GROUP + END_GROUP);
 
-  private static final String LABEL_KEY_PREFIX = "labels:";
+  static final String LABEL_KEY_PREFIX = "labels:";
   private static final String KEY_GROUP = "(?<key>[a-zA-Z0-9-_./]+)";
   // Matches a==b and a=b but not a!=b.
   private static final String EQUALITY_GROUP = "(==|(?<!!)=)";
@@ -127,25 +127,29 @@ public class KubernetesAttributesExtractor implements AttributeExtractor<HasMeta
     return fromPath(s);
   }
 
+  static AttributeSet extractMetadataAttributes(final HasMetadata hasMetadata) {
+    AttributeSet metadataAttributes = new AttributeSet();
+    if (!Utils.isNullOrEmpty(hasMetadata.getMetadata().getName())) {
+      metadataAttributes = metadataAttributes.add(new Attribute(NAME, hasMetadata.getMetadata().getName()));
+    }
+
+    if (!Utils.isNullOrEmpty(hasMetadata.getMetadata().getNamespace())) {
+      metadataAttributes = metadataAttributes.add(new Attribute(NAMESPACE, hasMetadata.getMetadata().getNamespace()));
+    }
+
+    if (hasMetadata.getMetadata().getLabels() != null) {
+      for (Map.Entry<String, String> label : hasMetadata.getMetadata().getLabels().entrySet()) {
+        metadataAttributes = metadataAttributes.add(new Attribute(LABEL_KEY_PREFIX + label.getKey(), label.getValue()));
+      }
+    }
+    return metadataAttributes;
+  }
+
   @Override
   public AttributeSet extract(HasMetadata o) {
-    AttributeSet attributes = new AttributeSet();
+    AttributeSet attributes = extractMetadataAttributes(o);
     if (!Utils.isNullOrEmpty(o.getKind())) {
       attributes = attributes.add(new Attribute(KIND, o.getKind().toLowerCase(Locale.ROOT)));
-    }
-
-    if (!Utils.isNullOrEmpty(o.getMetadata().getName())) {
-      attributes = attributes.add(new Attribute(NAME, o.getMetadata().getName()));
-    }
-
-    if (!Utils.isNullOrEmpty(o.getMetadata().getNamespace())) {
-      attributes = attributes.add(new Attribute(NAMESPACE, o.getMetadata().getNamespace()));
-    }
-
-    if (o.getMetadata().getLabels() != null) {
-      for (Map.Entry<String, String> label : o.getMetadata().getLabels().entrySet()) {
-        attributes = attributes.add(new Attribute(LABEL_KEY_PREFIX + label.getKey(), label.getValue()));
-      }
     }
     return attributes;
   }
