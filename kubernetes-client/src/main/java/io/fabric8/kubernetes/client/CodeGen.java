@@ -44,6 +44,7 @@ import io.sundr.transform.annotations.VelocityTransformations;
     @ResourceSelector("scheduling.properties"),
     @ResourceSelector("settings.properties"),
     @ResourceSelector("storage.properties"),
+    @ResourceSelector("openshift.properties"),
   }
 
 )
