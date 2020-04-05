@@ -190,7 +190,7 @@ public class CustomResourceTest {
 
     RecordedRequest request = server.getLastRequest();
     assertEquals("DELETE", request.getMethod());
-    assertEquals("{\"apiVersion\":\"v1\",\"kind\":\"DeleteOptions\",\"orphanDependents\":false}",
+    assertEquals("{\"apiVersion\":\"v1\",\"kind\":\"DeleteOptions\",\"dryRun\":[],\"orphanDependents\":false}",
       request.getBody().readUtf8());
   }
 
@@ -205,7 +205,7 @@ public class CustomResourceTest {
 
     RecordedRequest request = server.getLastRequest();
     assertEquals("DELETE", request.getMethod());
-    assertEquals("{\"apiVersion\":\"v1\",\"kind\":\"DeleteOptions\",\"propagationPolicy\":\"Orphan\"}",
+    assertEquals("{\"apiVersion\":\"v1\",\"kind\":\"DeleteOptions\",\"dryRun\":[],\"propagationPolicy\":\"Orphan\"}",
       request.getBody().readUtf8());
   }
 
@@ -225,7 +225,7 @@ public class CustomResourceTest {
 
     RecordedRequest request = server.getLastRequest();
     assertEquals("DELETE", request.getMethod());
-    assertEquals("{\"apiVersion\":\"v1\",\"kind\":\"DeleteOptions\",\"gracePeriodSeconds\":0,\"propagationPolicy\":\"Orphan\"}",
+    assertEquals("{\"apiVersion\":\"v1\",\"kind\":\"DeleteOptions\",\"dryRun\":[],\"gracePeriodSeconds\":0,\"propagationPolicy\":\"Orphan\"}",
       request.getBody().readUtf8());;
   }
 
