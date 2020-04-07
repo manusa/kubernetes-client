@@ -18,21 +18,24 @@
  * Defines Fabric8 Kubernetes Client API for interacting with Kubernetes from Java.
  */
 module io.fabric8.kubernetes.client {
+  requires static lombok;
+  requires static builder.annotations;
+  requires static transform.annotations;
   requires io.fabric8.kubernetes.model;
   requires io.fabric8.kubernetes.model.common;
-  requires okhttp3;
-  requires okhttp3.logging;
-  requires org.slf4j;
   requires com.fasterxml.jackson.databind;
   requires com.fasterxml.jackson.datatype.jsr310;
   requires com.fasterxml.jackson.dataformat.yaml;
   requires com.fasterxml.jackson.core;
-  requires zjsonpatch;
+  requires okhttp3;
+  requires okhttp3.logging;
+  requires okio;
+  requires org.slf4j;
   requires org.bouncycastle.pkix;
   requires org.apache.commons.codec;
   requires org.apache.commons.compress;
   requires generex;
-  requires static lombok;
+  requires zjsonpatch;
   requires org.apache.felix.scr.annotations;
   exports io.fabric8.kubernetes.client.dsl.base;
   exports io.fabric8.kubernetes.client.dsl.internal.uploadable;

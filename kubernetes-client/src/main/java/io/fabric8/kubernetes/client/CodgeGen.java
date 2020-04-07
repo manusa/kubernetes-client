@@ -15,7 +15,8 @@
  */
 package io.fabric8.kubernetes.client;
 
-import io.sundr.codegen.annotations.ResourceSelector;
+//import io.sundr.codegen.annotations.ResourceSelector;
+import io.sundr.transform.annotations.ResourceSelector;
 import io.sundr.transform.annotations.VelocityTransformation;
 import io.sundr.transform.annotations.VelocityTransformations;
 
