@@ -37,15 +37,20 @@ module io.fabric8.kubernetes.client {
   requires generex;
   requires zjsonpatch;
   requires org.apache.felix.scr.annotations;
+  exports io.fabric8.kubernetes.client;
+  exports io.fabric8.kubernetes.client.dsl;
   exports io.fabric8.kubernetes.client.dsl.base;
+  exports io.fabric8.kubernetes.client.dsl.internal;
   exports io.fabric8.kubernetes.client.dsl.internal.uploadable;
+  exports io.fabric8.kubernetes.client.extended.leaderelection;
+  exports io.fabric8.kubernetes.client.extended.leaderelection.resourcelock;
+  exports io.fabric8.kubernetes.client.handlers;
+  exports io.fabric8.kubernetes.client.informers;
+  exports io.fabric8.kubernetes.client.informers.cache;
+  exports io.fabric8.kubernetes.client.informers.impl;
   exports io.fabric8.kubernetes.client.internal.patchmixins;
   exports io.fabric8.kubernetes.client.internal.readiness;
   exports io.fabric8.kubernetes.client.internal.serializationmixins;
-  exports io.fabric8.kubernetes.client.extended.leaderelection.resourcelock;
-  exports io.fabric8.kubernetes.client.handlers;
-  exports io.fabric8.kubernetes.client.informers.cache;
-  exports io.fabric8.kubernetes.client.informers.impl;
   exports io.fabric8.kubernetes.client.osgi;
   exports io.fabric8.kubernetes.client.utils;
 }

@@ -14,7 +14,16 @@
  * limitations under the License.
  */
 module io.fabric8.openshift.client {
+  requires static builder.annotations;
+  requires static transform.annotations;
+  requires com.fasterxml.jackson.core;
+  requires com.fasterxml.jackson.databind;
+  requires generex;
+  requires io.fabric8.kubernetes.model;
   requires io.fabric8.kubernetes.client;
+  requires okhttp3;
+  requires org.slf4j;
+  requires org.apache.felix.scr.annotations;
   exports io.fabric8.openshift.client.internal;
   exports io.fabric8.openshift.client.dsl.internal;
   exports io.fabric8.openshift.client.dsl.buildconfig;

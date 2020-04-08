@@ -40,7 +40,6 @@ import io.fabric8.kubernetes.client.utils.Serialization;
 import io.fabric8.kubernetes.client.utils.Utils;
 import io.fabric8.openshift.api.model.Parameter;
 import io.fabric8.openshift.api.model.Template;
-import java.util.Objects;
 import java.util.function.Predicate;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
@@ -125,7 +124,7 @@ Waitable<List<HasMetadata>, HasMetadata>, Readiable {
       executor.shutdown();
     }
   }
-  
+
   @Override
   public List<HasMetadata> waitUntilCondition(Predicate<HasMetadata> condition, long amount,
     TimeUnit timeUnit) throws InterruptedException {

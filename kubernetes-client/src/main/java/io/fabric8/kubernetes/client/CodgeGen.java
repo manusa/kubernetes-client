@@ -15,7 +15,6 @@
  */
 package io.fabric8.kubernetes.client;
 
-//import io.sundr.codegen.annotations.ResourceSelector;
 import io.sundr.transform.annotations.ResourceSelector;
 import io.sundr.transform.annotations.VelocityTransformation;
 import io.sundr.transform.annotations.VelocityTransformations;
@@ -27,7 +26,10 @@ import io.sundr.transform.annotations.VelocityTransformations;
                 @VelocityTransformation(value = "/resource-handler-services.vm", gather = true, outputPath = "META-INF/services/io.fabric8.kubernetes.client.ResourceHandler")
         },
         resources = {
-                @ResourceSelector("kubernetes.properties")
+                @ResourceSelector(
+                  location = "MODULE_PATH",
+                  moduleAndPkg = "io.fabric8.kubernetes.model/io.fabric8.kubernetes.api.model",
+                  value = "kubernetes.properties")
         }
 
 )

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module io.fabric8.kubernetes.model {
+open module io.fabric8.kubernetes.model {
   requires static lombok;
   requires static builder.annotations;
   requires static transform.annotations;
@@ -27,9 +27,12 @@ module io.fabric8.kubernetes.model {
   exports io.fabric8.kubernetes.api.model.admissionregistration;
   exports io.fabric8.kubernetes.api.model.apiextensions;
   exports io.fabric8.kubernetes.api.model.apps;
+  exports io.fabric8.kubernetes.api.model.authentication;
   exports io.fabric8.kubernetes.api.model.authorization;
   exports io.fabric8.kubernetes.api.model.batch;
+  exports io.fabric8.kubernetes.api.model.certificates;
   exports io.fabric8.kubernetes.api.model.coordination.v1;
+  exports io.fabric8.kubernetes.api.model.discovery;
   exports io.fabric8.kubernetes.api.model.extensions;
   exports io.fabric8.kubernetes.api.model.metrics.v1beta1;
   exports io.fabric8.kubernetes.api.model.networking;
@@ -37,6 +40,7 @@ module io.fabric8.kubernetes.model {
   exports io.fabric8.kubernetes.api.model.rbac;
   exports io.fabric8.kubernetes.api.model.scheduling;
   exports io.fabric8.kubernetes.api.model.storage;
+  exports io.fabric8.kubernetes.api.model.storage.v1beta1;
   exports io.fabric8.kubernetes.api.model.settings;
   exports io.fabric8.kubernetes.api.model.v1;
   exports io.fabric8.kubernetes.internal;

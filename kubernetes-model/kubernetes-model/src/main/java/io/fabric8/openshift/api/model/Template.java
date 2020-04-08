@@ -65,7 +65,7 @@ import java.util.Map;
 @ApiVersion("v1")
 @ApiGroup("")
 @VelocityTransformations({
-    @VelocityTransformation(value = "/manifest.vm", outputPath = "openshift.properties", gather = true)
+    @VelocityTransformation(value = "/manifest.vm", outputPath = "io/fabric8/openshift/api/model/openshift.properties", gather = true)
 })
 public class Template implements HasMetadata {
 

@@ -121,12 +121,12 @@ public class KubernetesTypeAnnotator extends Jackson2Annotator {
             JAnnotationArrayMember arrayMember = resourceClass.annotate(VelocityTransformations.class)
               .paramArray("value");
             arrayMember.annotate(VelocityTransformation.class).param("value", "/manifest.vm")
-              .param("outputPath", "kubernetes.properties").param("gather", true);
+              .param("outputPath", "io/fabric8/kubernetes/api/model/kubernetes.properties").param("gather", true);
           } else if (resourceClass.getPackage().name().startsWith("io.fabric8.openshift")) {
             JAnnotationArrayMember arrayMember = resourceClass.annotate(VelocityTransformations.class)
               .paramArray("value");
             arrayMember.annotate(VelocityTransformation.class).param("value", "/manifest.vm")
-              .param("outputPath", "openshift.properties").param("gather", true);
+              .param("outputPath", "io/fabric8/openshift/api/model/openshift.properties").param("gather", true);
           }
           pendingLists.remove(resourceName);
           pendingResources.remove(resourceName);

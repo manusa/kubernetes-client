@@ -15,7 +15,10 @@
  */
 module io.fabric8.kubernetes.server.mock {
   requires io.fabric8.kubernetes.client;
+  requires io.fabric8.kubernetes.model;
+  requires junit;
   requires mockwebserver;
-
+  requires okhttp3;
+  requires okhttp3.mockwebserver;
   exports io.fabric8.kubernetes.client.server.mock;
 }
