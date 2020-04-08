@@ -307,25 +307,21 @@
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${maven.compiler.plugin.version}</version>
-          <configuration>
+          <configuration combine.children="append">
             <release>11</release>
             <showDeprecation>true</showDeprecation>
             <showWarnings>true</showWarnings>
+            <useIncrementalCompilation>false</useIncrementalCompilation>
             <annotationProcessorPaths>
-<!--              <annotationProcessorPath>-->
-<!--                <groupId>io.sundr</groupId>-->
-<!--                <artifactId>sundr-codegen</artifactId>-->
-<!--                <version>${sundrio.version}</version>-->
-<!--              </annotationProcessorPath>-->
               <annotationProcessorPath>
-                  <groupId>io.sundr</groupId>
-                  <artifactId>builder-annotations</artifactId>
-                  <version>${sundrio.version}</version>
+                <groupId>io.sundr</groupId>
+                <artifactId>builder-annotations</artifactId>
+                <version>${sundrio.version}</version>
               </annotationProcessorPath>
               <annotationProcessorPath>
-                  <groupId>io.sundr</groupId>
-                  <artifactId>transform-annotations</artifactId>
-                  <version>${sundrio.version}</version>
+                <groupId>io.sundr</groupId>
+                <artifactId>transform-annotations</artifactId>
+                <version>${sundrio.version}</version>
               </annotationProcessorPath>
             </annotationProcessorPaths>
           </configuration>
