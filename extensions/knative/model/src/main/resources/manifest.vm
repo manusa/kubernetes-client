@@ -1,4 +1,4 @@
-/**
+#*
  * Copyright (C) 2015 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,15 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-module io.fabric8.knative.api.model {
-  requires static lombok;
-  requires static builder.annotations;
-  requires static transform.annotations;
-  requires com.fasterxml.jackson.annotation;
-  requires com.fasterxml.jackson.databind;
-  requires io.fabric8.kubernetes.model;
-  requires io.fabric8.kubernetes.model.common;
-  exports io.fabric8.knative.api.model;
-  exports io.fabric8.knative.serving.v1;
-}
+ *#
+#foreach ($key in ${model.keySet()})
+$key
+#end
