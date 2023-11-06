@@ -29,6 +29,7 @@
   <name>Fabric8 :: Kubernetes :: Extensions</name>
 
   <modules>
+    <module>kubevirt</module>
     <module>knative</module>
     <module>tekton</module>
     <module>service-catalog</module>
