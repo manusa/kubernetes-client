@@ -1,0 +1,110 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    kubevirt.io/generation: "1"
+    kubevirt.io/install-strategy-identifier: 9cd362ff5bca9ddc85fdc0ca34c783bb3295071a
+    kubevirt.io/install-strategy-registry: ""
+    kubevirt.io/install-strategy-version: sha256:c1bad051b0a4e69da63c5e4668a1df95f90ee1469651bbdf55a9fe780a7ef6cd
+  creationTimestamp: "2023-11-06T10:15:16Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/component: compute
+    app.kubernetes.io/managed-by: virt-operator
+    app.kubernetes.io/part-of: hyperconverged-cluster
+    app.kubernetes.io/version: 4.13.5
+    kubevirt.io: ""
+  name: migrationpolicies.migrations.kubevirt.io
+  resourceVersion: "20087869"
+  uid: edf33a2d-07bf-4154-b2d6-8156feb23f68
+spec:
+  conversion:
+    strategy: None
+  group: migrations.kubevirt.io
+  names:
+    categories:
+    - all
+    kind: MigrationPolicy
+    listKind: MigrationPolicyList
+    plural: migrationpolicies
+    singular: migrationpolicy
+  scope: Cluster
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: MigrationPolicy holds migration policy (i.e. configurations)
+          to apply to a VM or group of VMs
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              allowAutoConverge:
+                type: boolean
+              allowPostCopy:
+                type: boolean
+              bandwidthPerMigration:
+                anyOf:
+                - type: integer
+                - type: string
+                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                x-kubernetes-int-or-string: true
+              completionTimeoutPerGiB:
+                format: int64
+                type: integer
+              selectors:
+                properties:
+                  namespaceSelector:
+                    additionalProperties:
+                      type: string
+                    type: object
+                  virtualMachineInstanceSelector:
+                    additionalProperties:
+                      type: string
+                    type: object
+                type: object
+            required:
+            - selectors
+            type: object
+          status:
+            nullable: true
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    categories:
+    - all
+    kind: MigrationPolicy
+    listKind: MigrationPolicyList
+    plural: migrationpolicies
+    singular: migrationpolicy
+  conditions:
+  - lastTransitionTime: "2023-11-06T10:14:36Z"
+    message: no conflicts found
+    reason: NoConflicts
+    status: "True"
+    type: NamesAccepted
+  - lastTransitionTime: "2023-11-06T10:14:37Z"
+    message: the initial names have been accepted
+    reason: InitialNamesAccepted
+    status: "True"
+    type: Established
+  storedVersions:
+  - v1alpha1

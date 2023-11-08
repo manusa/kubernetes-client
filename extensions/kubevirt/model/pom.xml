@@ -74,10 +74,18 @@
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
     <plugins>
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>java-generator-maven-plugin</artifactId>
+        <version>${project.version}</version>
         <executions>
           <execution>
             <goals>
@@ -88,9 +96,45 @@
         <configuration>
           <extraAnnotations>true</extraAnnotations>
           <generatedAnnotations>false</generatedAnnotations>
-          <urls>
-            <url>https://raw.githubusercontent.com/kubevirt/kubevirt/v1.0.1/manifests/generated/kv-resource.yaml</url>
-          </urls>
+          <resources>
+            <resource>kubevirts.kubevirt.io.yaml</resource>
+            <resource>virtualmachines.kubevirt.io.yaml</resource>
+            <resource>virtualmachineinstances.kubevirt.io.yaml</resource>
+            <resource>virtualmachineinstancetypes.instancetype.kubevirt.io.yaml</resource>
+            <resource>virtualmachinesnapshotcontents.snapshot.kubevirt.io.yaml</resource>
+            <resource>virtualmachinesnapshots.snapshot.kubevirt.io.yaml</resource>
+            <resource>virtualmachineclones.clone.kubevirt.io.yaml</resource>
+            <resource>virtualmachineclusterinstancetypes.instancetype.kubevirt.io.yaml</resource>
+            <resource>virtualmachineclusterpreferences.instancetype.kubevirt.io.yaml</resource>
+            <resource>virtualmachineexports.export.kubevirt.io.yaml</resource>
+            <resource>virtualmachineinstancemigrations.kubevirt.io.yaml</resource>
+            <resource>virtualmachineinstancepresets.kubevirt.io.yaml</resource>
+            <resource>virtualmachineinstancereplicasets.kubevirt.io.yaml</resource>
+            <resource>virtualmachinepools.pool.kubevirt.io.yaml</resource>
+            <resource>virtualmachinepreferences.instancetype.kubevirt.io.yaml</resource>
+            <resource>virtualmachinerestores.snapshot.kubevirt.io.yaml</resource>
+
+
+            <resource>datavolumes.cdi.kubevirt.io.yaml</resource>
+            <resource>datasources.cdi.kubevirt.io.yaml</resource>
+            <resource>dataimportcrons.cdi.kubevirt.io.yaml</resource>
+
+            <resource>storageprofiles.cdi.kubevirt.io.yaml</resource>
+            <resource>hostpathprovisioners.hostpathprovisioner.kubevirt.io.yaml</resource>
+            <resource>hyperconvergeds.hco.kubevirt.io.yaml</resource>
+
+            <resource>migrationpolicies.migrations.kubevirt.io.yaml</resource>
+            <resource>cdiconfigs.cdi.kubevirt.io.yaml</resource>
+            <resource>cdis.cdi.kubevirt.io.yaml</resource>
+            <resource>objecttransfers.cdi.kubevirt.io.yaml</resource>
+            <resource>ssps.ssp.kubevirt.io.yaml</resource>
+            <resource>tektontasks.tektontasks.kubevirt.io.yaml</resource>
+
+            <!-- This is broken at the moment, so let's comment it out. 
+
+            <resource>networkaddonsconfigs.networkaddonsoperator.network.kubevirt.io.yaml</resource>
+            -->
+          </resources>
           <packageOverrides>
             <io.kubevirt.v1>io.fabric8.kubevirt.v1</io.kubevirt.v1>
             <io.kubevirt.v1alpha3>io.fabric8.kubevirt.v1alpha3</io.kubevirt.v1alpha3>

@@ -1,0 +1,180 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.11.3
+    operator.cdi.kubevirt.io/lastAppliedConfiguration: '{"kind":"CustomResourceDefinition","apiVersion":"apiextensions.k8s.io/v1","metadata":{"name":"objecttransfers.cdi.kubevirt.io","creationTimestamp":null,"annotations":{"controller-gen.kubebuilder.io/version":"v0.11.3"}},"spec":{"group":"cdi.kubevirt.io","names":{"plural":"objecttransfers","singular":"objecttransfer","shortNames":["ot","ots"],"kind":"ObjectTransfer","listKind":"ObjectTransferList"},"scope":"Cluster","versions":[{"name":"v1beta1","served":true,"storage":true,"schema":{"openAPIV3Schema":{"description":"ObjectTransfer
+      is the cluster scoped object transfer resource","type":"object","required":["spec"],"properties":{"apiVersion":{"description":"APIVersion
+      defines the versioned schema of this representation of an object. Servers should
+      convert recognized schemas to the latest internal value, and may reject unrecognized
+      values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources","type":"string"},"kind":{"description":"Kind
+      is a string value representing the REST resource this object represents. Servers
+      may infer this from the endpoint the client submits requests to. Cannot be updated.
+      In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds","type":"string"},"metadata":{"type":"object"},"spec":{"description":"ObjectTransferSpec
+      specifies the source/target of the transfer","type":"object","required":["source","target"],"properties":{"parentName":{"type":"string"},"source":{"description":"TransferSource
+      is the source of a ObjectTransfer","type":"object","required":["kind","name","namespace"],"properties":{"apiVersion":{"type":"string"},"kind":{"type":"string"},"name":{"type":"string"},"namespace":{"type":"string"},"requiredAnnotations":{"type":"object","additionalProperties":{"type":"string"}}}},"target":{"description":"TransferTarget
+      is the target of an ObjectTransfer","type":"object","properties":{"name":{"type":"string"},"namespace":{"type":"string"}}}}},"status":{"description":"ObjectTransferStatus
+      is the status of the ObjectTransfer","type":"object","properties":{"conditions":{"type":"array","items":{"description":"ObjectTransferCondition
+      contains condition data","type":"object","required":["status","type"],"properties":{"lastHeartbeatTime":{"type":"string","format":"date-time"},"lastTransitionTime":{"type":"string","format":"date-time"},"message":{"type":"string"},"reason":{"type":"string"},"status":{"type":"string"},"type":{"description":"ObjectTransferConditionType
+      is the type of ObjectTransferCondition","type":"string"}}}},"data":{"description":"Data
+      is a place for intermediary state.  Or anything really.","type":"object","additionalProperties":{"type":"string"}},"phase":{"description":"Phase
+      is the current phase of the transfer","type":"string"}}}}}},"subresources":{"status":{}},"additionalPrinterColumns":[{"name":"Age","type":"date","jsonPath":".metadata.creationTimestamp"},{"name":"Phase","type":"string","description":"The
+      phase of the ObjectTransfer","jsonPath":".status.phase"}]}]},"status":{"conditions":null,"acceptedNames":{"plural":"","kind":""},"storedVersions":null}}'
+  creationTimestamp: "2023-11-06T10:15:01Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/part-of: hyperconverged-cluster
+    app.kubernetes.io/version: 4.13.5
+    operator.cdi.kubevirt.io/createVersion: 4.13.5
+  name: objecttransfers.cdi.kubevirt.io
+  ownerReferences:
+  - apiVersion: cdi.kubevirt.io/v1beta1
+    blockOwnerDeletion: true
+    controller: true
+    kind: CDI
+    name: cdi-kubevirt-hyperconverged
+    uid: 12a15ba4-3e31-4aca-bd79-df3208736747
+  resourceVersion: "20087046"
+  uid: aacc47bb-d856-4955-a7d4-aea324548c6b
+spec:
+  conversion:
+    strategy: None
+  group: cdi.kubevirt.io
+  names:
+    kind: ObjectTransfer
+    listKind: ObjectTransferList
+    plural: objecttransfers
+    shortNames:
+    - ot
+    - ots
+    singular: objecttransfer
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - description: The phase of the ObjectTransfer
+      jsonPath: .status.phase
+      name: Phase
+      type: string
+    name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: ObjectTransfer is the cluster scoped object transfer resource
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ObjectTransferSpec specifies the source/target of the transfer
+            properties:
+              parentName:
+                type: string
+              source:
+                description: TransferSource is the source of a ObjectTransfer
+                properties:
+                  apiVersion:
+                    type: string
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                  requiredAnnotations:
+                    additionalProperties:
+                      type: string
+                    type: object
+                required:
+                - kind
+                - name
+                - namespace
+                type: object
+              target:
+                description: TransferTarget is the target of an ObjectTransfer
+                properties:
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                type: object
+            required:
+            - source
+            - target
+            type: object
+          status:
+            description: ObjectTransferStatus is the status of the ObjectTransfer
+            properties:
+              conditions:
+                items:
+                  description: ObjectTransferCondition contains condition data
+                  properties:
+                    lastHeartbeatTime:
+                      format: date-time
+                      type: string
+                    lastTransitionTime:
+                      format: date-time
+                      type: string
+                    message:
+                      type: string
+                    reason:
+                      type: string
+                    status:
+                      type: string
+                    type:
+                      description: ObjectTransferConditionType is the type of ObjectTransferCondition
+                      type: string
+                  required:
+                  - status
+                  - type
+                  type: object
+                type: array
+              data:
+                additionalProperties:
+                  type: string
+                description: Data is a place for intermediary state.  Or anything
+                  really.
+                type: object
+              phase:
+                description: Phase is the current phase of the transfer
+                type: string
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ObjectTransfer
+    listKind: ObjectTransferList
+    plural: objecttransfers
+    shortNames:
+    - ot
+    - ots
+    singular: objecttransfer
+  conditions:
+  - lastTransitionTime: "2023-11-06T10:14:10Z"
+    message: no conflicts found
+    reason: NoConflicts
+    status: "True"
+    type: NamesAccepted
+  - lastTransitionTime: "2023-11-06T10:14:21Z"
+    message: the initial names have been accepted
+    reason: InitialNamesAccepted
+    status: "True"
+    type: Established
+  storedVersions:
+  - v1beta1
