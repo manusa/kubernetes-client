@@ -25,11 +25,13 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
-
+import org.apache.maven.model.Resource;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +53,13 @@ public class JavaGeneratorMojo extends AbstractMojo {
    */
   @Parameter(property = "fabric8.java-generator.urls", required = false)
   String[] urls;
+
+  /**
+   * The resources to be used to read the  CRDs from
+   */
+  @Parameter(property = "fabric8.java-generator.resources", required = false)
+  String[] resources;
+
 
   /**
    * The Download target folder for CRDs downloaded from remote URLs
@@ -137,8 +146,8 @@ public class JavaGeneratorMojo extends AbstractMojo {
 
     List<JavaGenerator> runners = new ArrayList<>();
 
+    final List<URL> urlList = new ArrayList<>();
     if (urls != null && urls.length > 0) {
-      final List<URL> urlList = new ArrayList<>();
       for (String url : urls) {
         try {
           urlList.add(new URL(url));
@@ -146,6 +155,24 @@ public class JavaGeneratorMojo extends AbstractMojo {
           throw new MojoExecutionException("URL '" + url + "' is not valid", e);
         }
       }
+    }
+
+    List<String> resourceNames = Arrays.asList(resources);
+    for (Resource resource : project.getResources()) {
+        File resourceDir = new File(resource.getDirectory());
+        for (File f : resourceDir.listFiles()) {
+          try {
+           Path relative = resourceDir.toPath().relativize(f.toPath());
+           if (resourceNames.contains(relative.toString())) {
+              urlList.add(f.toURI().toURL());
+            }
+          } catch (MalformedURLException e) {
+            throw new MojoExecutionException("URL for File '" + f.getName()  + "' is not valid", e);
+          } 
+        }
+    }
+
+    if (!urlList.isEmpty()) {
       if (!downloadTarget.isDirectory()) {
         downloadTarget.mkdirs();
       }
